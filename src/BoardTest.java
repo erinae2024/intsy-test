@@ -40,16 +40,10 @@ class Agent extends Tile{
     public scan();
     public end();*/
 
-
-}
-
-//x coord is row / what floor agent is on
-//y coord is column / what tile agent is on
-
-public class BoardTest {
-
     //this is basically scan() bc idk how to put it in agent
-    public String getTileIcon(int x, int y, int MAX_ROW, int MAX_COL, ArrayList<Tile> boardTiles){
+    public String getTileIcon(int MAX_ROW, int MAX_COL, ArrayList<Tile> boardTiles){
+        int x = this.coords.get(0);
+        int y = this.coords.get(1)+1;
         if(y == 0)
             return "//";
         
@@ -65,10 +59,20 @@ public class BoardTest {
            return null;
         }
     }
+
+
+}
+
+//x coord is row / what floor agent is on
+//y coord is column / what tile agent is on
+
+public class BoardTest {
+
+    
     public static void main(String[] args) {
 
-        int MAX_ROW;
-        int MAX_COL; //used for board-set up
+        int MAX_ROW = 4;
+        int MAX_COL = 4; //used for board-set up
         ArrayList<Tile> boardTiles = new ArrayList<>();
 
 
@@ -78,12 +82,14 @@ public class BoardTest {
         Tile task = new Tile("[T]", 3, 1);
         boardTiles.add(task);
 
-        Agent agent = new Agent("A", 0, 1);
+        Agent agent = new Agent("A", 2, 1);
 
         System.out.println(boss.getIcon());
         System.out.println(task.getIcon());
         System.out.println(agent.getIcon());
 
+        String s = agent.getTileIcon(MAX_ROW, MAX_COL, boardTiles);
+        System.out.println(s);
     
 
     }
