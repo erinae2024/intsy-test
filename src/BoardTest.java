@@ -40,7 +40,7 @@ class Agent extends Tile{
     public scan();
     public end();*/
 
-    //this is basically scan() bc idk how to put it in agent
+    //SCAN FUNCITOTN IN PROGRESSSSSS
     public String scan(int MAX_ROW, int MAX_COL, ArrayList<Tile> boardTiles){
         int x = this.coords.get(0);
         int y = this.coords.get(1)+1;
@@ -52,7 +52,7 @@ class Agent extends Tile{
         else{
            for(Tile curr : boardTiles){
                 if(curr.getX() == x && curr.getY() == y){
-                    return tile.getIcon();
+                    return curr.getIcon();
                 }
            }
            return null;
@@ -120,11 +120,13 @@ public class BoardTest {
                 boardTiles.set(boardTiles.indexOf(curr), task1);
         }
 
-        Agent agent = new Agent("A", 2, 2); //setting up agent tile
+        Agent agent = new Agent("A", 2, 1); //setting up agent tile
 
 
         printBoard(MAX_ROW, MAX_COL, boardTiles, agent);
-    
+        System.out.println();
+        System.out.println(agent.scan(MAX_ROW, MAX_COL, boardTiles));
+        
 
     }
     
