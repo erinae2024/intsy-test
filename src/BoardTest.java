@@ -11,28 +11,56 @@ class Tile{
    }
 
    public String getIcon(){
-        return this.icon;
+        return icon;
+   }
+
+   public void setIcon(String s){
+        this.icon = s;
    }
 
    public ArrayList<Integer> getCoords(){
-        return this.coords;
+        return coords;
    }
 
    public int getX(){
-        return this.coords.get(0);
+        return coords.get(0);
    }
 
    public int getY(){
-        return this.coords.get(1);
+        return coords.get(1);
    }
 }
 
 class Agent extends Tile{
-    private ArrayList<Tile> tasks = new ArrayList<>();
+    private ArrayList<Tile> tasks;
     private int fatigue = 0;
 
-    Agent(String i, int x, int y){
+    Agent(String i, int x, int y, ArrayList<Tile> tasks){
         super(i, x, y);
+        this.tasks = tasks;
+    }
+
+   
+    public void setX(int x){ 
+        this.coords.set(0, x);
+    }
+
+    public void setY(int y){ 
+        this.coords.set(1, y);
+    }
+
+    
+    public void updateTasks(ArrayList<Tile> tasks){
+        this.tasks = tasks;
+    }
+
+    public ArrayList<Tile> getTasks(){
+        return tasks;
+    }
+        
+
+    public int tasksLeft(){
+        return tasks.size();
     }
 
     /*;
@@ -67,7 +95,14 @@ class Agent extends Tile{
 
 public class BoardTest {
 
-    public static void printBoard(int MAX_ROW, int MAX_COL, ArrayList<Tile> boardTiles, Tile agent){
+    /*
+     * printBoard -> prints all tiles on the board
+     * @param MAX_ROW - max amount of rows on the board
+     * @param MAX_COL - max amount of columns on the board
+     * @param boardTiles - all tiles on the board
+     * @param agent - agent object/tile 
+     */
+    public static void printBoard(int MAX_ROW, int MAX_COL, ArrayList<Tile> boardTiles, Agent agent){
         for(int i = 0; i < MAX_ROW; i++){
             for(int j = 0; j < MAX_COL; j++){
                 if(agent.getX() == i && agent.getY() == j){
@@ -90,13 +125,46 @@ public class BoardTest {
             System.out.println();
         }
     }
+
+    /*
+     * removeTask -> if the agent's coords are the same as a task tile, this function removes the task from
+     *               the agent's taskTiles list and the replaces the icon to an empty room "[ ]" on the boards
+     * 
+     * @param boardtiles - all tiles on the board
+     * @param taskTiles - list of task tiles of agent
+     * @param removeTaskTiles - contains task to be removed
+     * @agent - agent object
+     */
+    public static void removeTask(ArrayList<Tile> boardTiles, ArrayList<Tile> removeTaskTile, Agent agent){
+
+        String taskIcon = "[T]";
+        ArrayList<Tile> tasks = agent.getTasks();
+
+        for(Tile curr : boardTiles){
+            if(agent.getX() == curr.getX() && agent.getY() == curr.getY()){ //if agent is on curr's coords
+                if(taskIcon.equals(curr.getIcon())){ //and curr's coords has the task icon
+                    removeTaskTile.add(curr); //add to removeTaskTile list 
+                    curr.setIcon("[ ]"); //and set curr's icon to an empty room
+                }
+                    
+            }
+        }
+
+       tasks.removeAll(removeTaskTile); //remove task from taskTiles list
+       agent.updateTasks(tasks); 
+
+    }
     public static void main(String[] args) {
 
-        int MAX_ROW = 4;
-        int MAX_COL = 4; //used for board-set up
-        ArrayList<Tile> boardTiles = new ArrayList<>();
+        /*** SETTING UP BOARD & BASIC ELEMENTS: STAIRS, ELEVATORS, ROOMS ****/
 
-        for(int i = 0; i < MAX_ROW; i++){ //setting up basic board elements: stairs, elevators, rooms
+        int MAX_ROW = 4;
+        int MAX_COL = 4; 
+        ArrayList<Tile> boardTiles = new ArrayList<>();
+        ArrayList<Tile> taskTiles = new ArrayList<>(); //task tiles for agent
+        ArrayList<Tile> removeTaskTile = new ArrayList<>(); //used to avoid ConcurrentModificationException when removing task from agent's tasks
+
+        for(int i = 0; i < MAX_ROW; i++){ 
             for(int j = 0; j < MAX_COL; j++){
                 if(j == 0)
                     boardTiles.add(new Tile("//", i, j));
@@ -107,7 +175,8 @@ public class BoardTest {
             }
         }
 
-        
+        /*** SETTING UP UNIQUE BOARD ELEMENTS: BOSS, TASK, AGENT, ETC. ****/
+
         Tile boss = new Tile("[B]", 2, 2); //setting up boss tile
         for(Tile curr : boardTiles){
             if(curr.getX() == boss.getX() && curr.getY() == boss.getY())
@@ -115,18 +184,53 @@ public class BoardTest {
         }
 
         Tile task1 = new Tile("[T]", 3, 1); //setting up task tile
+        taskTiles.add(task1);
         for(Tile curr : boardTiles){
             if(curr.getX() == task1.getX() && curr.getY() == task1.getY())
                 boardTiles.set(boardTiles.indexOf(curr), task1);
         }
 
-        Agent agent = new Agent("A", 2, 1); //setting up agent tile
+        Tile task2 = new Tile("[T]", 3, 2); //setting up task tile
+        taskTiles.add(task2);
+        for(Tile curr : boardTiles){
+            if(curr.getX() == task2.getX() && curr.getY() == task2.getY())
+                boardTiles.set(boardTiles.indexOf(curr), task2);
+        }
+
+        Agent agent = new Agent("A", 2, 1, taskTiles); //setting up agent tile
 
 
+        System.out.println("Agent Tasks Left: " + agent.tasksLeft());
         printBoard(MAX_ROW, MAX_COL, boardTiles, agent);
         System.out.println();
-        System.out.println(agent.scan(MAX_ROW, MAX_COL, boardTiles));
-        
+        //System.out.println(agent.scan(MAX_ROW, MAX_COL, boardTiles));
+
+        agent.setX(3); agent.setY(1);
+
+        removeTask(boardTiles, removeTaskTile, agent);
+
+        System.out.println("Agent Tasks Left: " + agent.tasksLeft());
+        printBoard(MAX_ROW, MAX_COL, boardTiles, agent);
+        System.out.println();
+
+
+        agent.setX(3); agent.setY(2);
+
+        removeTask(boardTiles, removeTaskTile, agent);
+
+        System.out.println("Agent Tasks Left: " + agent.tasksLeft());
+        printBoard(MAX_ROW, MAX_COL, boardTiles, agent);
+        System.out.println();
+
+         agent.setX(0); agent.setY(1);
+
+        removeTask(boardTiles, removeTaskTile, agent);
+
+        System.out.println("Agent Tasks Left: " + agent.tasksLeft());
+        printBoard(MAX_ROW, MAX_COL, boardTiles, agent);
+        System.out.println();
+
+
 
     }
     
