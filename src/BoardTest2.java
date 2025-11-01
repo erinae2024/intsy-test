@@ -799,38 +799,97 @@ static void DFSEnter (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited
             }
         }
 
+        /* MAIN EVENT STARTS HERE */
+        System.out.println("==============");
         System.out.println("DFS TRAVERSAL");
+        System.out.println("==============");
+
 
         Scanner sc = new Scanner(System.in);
+        Scanner sc2 = new Scanner(System.in);
 
-        while(agent.tasksLeft() != 0){
-            DFSEnter(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc);
+        int choice = 0;
 
-            if((agent.getX() != boss.getX())){
-                for(int i = 0; i < MAX_ROW; i++){
-                    for(int j = 0; j < MAX_COL; j++){
-                        visited[i][j] = false;
-                     }
-                }
+        while(choice != 1 && choice != 2){
 
-                DFSEnter(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc);
-            }
+            System.out.println("[1] Automatic Viewing");
+            System.out.println("[2] Manual Viewing");
+            System.out.print("Enter number of choice: ");
+            choice = sc2.nextInt();
             
+            if(choice != 1 && choice != 2){
+                System.out.println("Error: Invalid input!");
+                System.out.println();
+            }
+        }
+        
+        
 
-            if((agent.getY() != boss.getY())){
-                for(int i = 0; i < MAX_ROW; i++){
-                    for(int j = 0; j < MAX_COL; j++){
-                        visited[i][j] = false;
-                     }
+        if(choice == 1){
+
+            while(agent.tasksLeft() != 0){
+                DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL);
+
+                if((agent.getX() != boss.getX())){
+                    for(int i = 0; i < MAX_ROW; i++){
+                        for(int j = 0; j < MAX_COL; j++){
+                            visited[i][j] = false;
+                        }
+                    }
+
+                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL);
                 }
+                
 
-                DFSEnter(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc);
+                if((agent.getY() != boss.getY())){
+                    for(int i = 0; i < MAX_ROW; i++){
+                        for(int j = 0; j < MAX_COL; j++){
+                            visited[i][j] = false;
+                        }
+                    }
+
+                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL);
             }
 
             
         }
+
+        }
+
+        if(choice == 2){
+
+            while(agent.tasksLeft() != 0){
+                DFSEnter(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc);
+
+                if((agent.getX() != boss.getX())){
+                    for(int i = 0; i < MAX_ROW; i++){
+                        for(int j = 0; j < MAX_COL; j++){
+                            visited[i][j] = false;
+                        }
+                    }
+
+                    DFSEnter(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc);
+                }
+                
+
+                if((agent.getY() != boss.getY())){
+                    for(int i = 0; i < MAX_ROW; i++){
+                        for(int j = 0; j < MAX_COL; j++){
+                            visited[i][j] = false;
+                        }
+                    }
+
+                    DFSEnter(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc);
+                }
+
+        }
+
+        }
+
+       
         
         sc.close();
+        sc2.close();
 
     }
     
