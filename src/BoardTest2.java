@@ -221,6 +221,12 @@ class Agent extends Tile{
         }
     }
 
+    public void end(){
+        System.out.println();
+        System.out.println("Agent has completed all tasks and returned back to Boss");
+        System.out.println();
+    }
+
 
 }
 
@@ -373,6 +379,7 @@ public class BoardTest2 {
         //agent.incMove();
         removeTask(grid,removeTaskTile, agent, MAX_ROW, MAX_COL);
 
+        System.out.println();
         System.out.println("Starting DFS at (" + srow + ", " + scol + ")");
         System.out.println("Agent Tasks Left: " + agent.tasksLeft());
         System.out.println("Move Count: " + agent.getMovCount());
@@ -420,7 +427,7 @@ public class BoardTest2 {
 
                 // time delay for execution
                 try {
-                    Thread.sleep(250); // 1 second
+                    Thread.sleep(3000); // 1 second
                 } catch (InterruptedException e) { 
                         Thread.currentThread().interrupt(); 
                         return;
@@ -439,6 +446,7 @@ public class BoardTest2 {
 
                 if(agent.tasksLeft() == 0){ //if there are no tasks left
                     if(agent.getX() == boss.getX() && agent.getY() == boss.getY()){ //and agent is on boss tile
+                        agent.end();
                         endDFS = true; //endDFS regardless if there is nodes left to be explored
                     }
                 }
@@ -476,6 +484,13 @@ public class BoardTest2 {
                                 System.out.println();
                                 System.out.println("====================");
                             }
+
+                            try {
+                                Thread.sleep(3000); // 1 second
+                            } catch (InterruptedException e) { 
+                                    Thread.currentThread().interrupt(); 
+                                    return;
+                            }
                         }
 
                         while(unvisited.col != agent.getY()){
@@ -502,6 +517,13 @@ public class BoardTest2 {
                                 printBoard(MAX_ROW, MAX_COL, grid, agent);
                                 System.out.println();
                                 System.out.println("====================");
+                            }
+                            
+                            try {
+                                Thread.sleep(3000); // 1 second
+                            } catch (InterruptedException e) { 
+                                    Thread.currentThread().interrupt(); 
+                                    return;
                             }
 
                         }
