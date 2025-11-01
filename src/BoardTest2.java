@@ -197,12 +197,10 @@ class Agent extends Tile{
         return this.movCount;
     }
 
-    /*;
-    public turn();
-    public scan();
-    public end();*/
+    
 
-    //SCAN FUNCITOTN IN PROGRESSSSSS
+
+    /*RETURN STRING SCAN FUNCTION
     public String scan(int MAX_ROW, int MAX_COL, ArrayList<Tile> boardTiles, int row, int col){
         int x = row;
         int y = col;
@@ -219,6 +217,17 @@ class Agent extends Tile{
            }
            return null;
         }
+    }*/
+
+    public Tile scan(int MAX_ROW, int MAX_COL, Tile[][] boardTiles, int incRow, int incCol){
+        for(int i = 0; i < MAX_ROW; i++){
+            for(int j = 0; j < MAX_COL; j++){
+                if(this.getX()+incRow == i && this.getY()+incCol == j){
+                    return boardTiles[i][j];
+                }
+            }
+        }
+        return new Tile("", this.getX()+incRow, this.getY()+incCol);
     }
 
     public void end(){
@@ -303,6 +312,14 @@ public class BoardTest2 {
     //vectors to use for moving left, up, right, down respectively
     static int vRow[] = {0, 1, 0, -1};
     static int vCol[] = {-1, 0, 1, 0};
+    
+    //up left down right
+    //static int vRow[] = {1, 0, -1, 0};
+    //static int vCol[] = {0, -1, 0, 1};
+
+    //
+  
+    
 
     static class pos {
         public int row,col;
@@ -354,19 +371,13 @@ public class BoardTest2 {
      * MAX_COL - max num of columns
      * removeTaskTile - arraylist to remove task tiles once agent has gone over them
      */
-    static void DFS (Agent agent, Tile boss, Tile[][] grid, ArrayList<Tile> removeTaskTile, int MAX_ROW, int MAX_COL){
+    static void DFS (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited, ArrayList<Tile> removeTaskTile, int MAX_ROW, int MAX_COL){
 
         boolean unvisitedExists = false;
         pos unvisited = new pos(0, 0); //initialize unvisited tile if there is left in the stack
         boolean endDFS = false;
 
-        //initalize visited array
-        Boolean visited [][] = new Boolean [MAX_ROW][MAX_COL];
-        for(int i = 0; i < MAX_ROW; i++){
-            for(int j = 0; j < MAX_COL; j++){
-                visited[i][j] = false;
-            }
-        }
+        
 
         //initialize a stack of positions
         Stack<pos> posStack = new Stack<pos>();
@@ -410,9 +421,21 @@ public class BoardTest2 {
             int col = curr.col;
 
             if(isValid(visited, row, col, MAX_ROW, MAX_COL, grid,agent)){
+
+                /* TEMPORARY FIX FOR ERROR CASE 
+                if((agent.getX() == row-1 || agent.getX() == row+1) && agent.tasksLeft()==0){
+                    if((agent.getY() != 0 && agent.getY() != MAX_COL-1) &&  (col > agent.getY() || col < agent.getY()) ){
+                        visited[row][0] = false;
+                        visited[row][MAX_COL-1] = false;
+                        col = col - 1;
+                    }
+                }else{
+                    visited[row][col] = true;
+                }
+                */    
+                
                 visited[row][col] = true;
-                /*agent.setX(row);
-                agent.setY(col);*/
+
                 agent.move(row, col);
                 removeTask(grid, removeTaskTile, agent, MAX_ROW, MAX_COL);
                 //agent.incMove();
@@ -436,12 +459,20 @@ public class BoardTest2 {
 
                 // push the neighbors of the current cell into the stack so it will be explored later on
                 // in this case the neighbors are its neighbors on all four corners
+
+                /*
                 for(int i = 0; i < 4; i++){
                     int adjR = row + vRow[i]; // add the vector of the row
                     int adjC = col + vCol[i];
                     if(isValid(visited, adjR, adjC, MAX_ROW, MAX_COL, grid,agent))
                         posStack.push(new pos(adjR, adjC));
                     
+                }
+                */
+                for(int i = 0; i < 4; i++){
+                    Tile adjTile = agent.scan(MAX_ROW, MAX_COL, grid, vRow[i], vCol[i]);
+                    if(isValid(visited, adjTile.getX(), adjTile.getY(), MAX_ROW, MAX_COL, grid,agent))
+                        posStack.push(new pos(adjTile.getX(), adjTile.getY()));
                 }
 
                 if(agent.tasksLeft() == 0){ //if there are no tasks left
@@ -451,14 +482,14 @@ public class BoardTest2 {
                     }
                 }
 
-            }else if(posStack.size() == 1){
+            } else if(posStack.size() == 1){
                 unvisitedExists = true;
                 unvisited.setPos(curr.row, curr.col);
             }
                     
         }
 
-        if(agent.tasksLeft() != 0){ //if there are still tasks, move agent to unvisited tile. first by row, then by column.
+       if(agent.tasksLeft() != 0){ //if there are still tasks, move agent to unvisited tile. first by row, then by column.
                     if(unvisitedExists){
                         while(unvisited.row != agent.getX()){
                             if(unvisited.row > agent.getX()){
@@ -581,34 +612,43 @@ public class BoardTest2 {
         
         //DFS
 
+        //initalize visited array
+        Boolean visited [][] = new Boolean [MAX_ROW][MAX_COL];
+        for(int i = 0; i < MAX_ROW; i++){
+            for(int j = 0; j < MAX_COL; j++){
+                visited[i][j] = false;
+            }
+        }
 
         System.out.println("DFS TRAVERSAL");
 
         while(agent.tasksLeft() != 0){
-            DFS(agent, boss, boardTiles, removeTaskTile, MAX_ROW, MAX_COL);
+            DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL);
 
-            if((agent.getX() != boss.getX()))
-            DFS(agent, boss, boardTiles, removeTaskTile, MAX_ROW, MAX_COL);
+            if((agent.getX() != boss.getX())){
+                for(int i = 0; i < MAX_ROW; i++){
+                    for(int j = 0; j < MAX_COL; j++){
+                        visited[i][j] = false;
+                     }
+                }
 
-            if((agent.getY() != boss.getY()))
-            DFS(agent, boss, boardTiles, removeTaskTile, MAX_ROW, MAX_COL);
+                DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL);
+            }
+            
+
+            if((agent.getY() != boss.getY())){
+                for(int i = 0; i < MAX_ROW; i++){
+                    for(int j = 0; j < MAX_COL; j++){
+                        visited[i][j] = false;
+                     }
+                }
+
+                DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL);
+            }
 
             
         }
         
-        
-           
-
-
-       // System.out.println("Agent Tasks Left: " + agent.tasksLeft());
-        //System.out.println();
-       // printBoard(MAX_ROW, MAX_COL, boardTiles, agent);
-       // System.out.println();
-        //System.out.println(agent.scan(MAX_ROW, MAX_COL, boardTiles));
-        
-        
-   
-
 
     }
     
