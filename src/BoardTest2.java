@@ -312,14 +312,6 @@ public class BoardTest2 {
     //vectors to use for moving left, up, right, down respectively
     static int vRow[] = {0, 1, 0, -1};
     static int vCol[] = {-1, 0, 1, 0};
-    
-    //up left down right
-    //static int vRow[] = {1, 0, -1, 0};
-    //static int vCol[] = {0, -1, 0, 1};
-
-    //
-  
-    
 
     static class pos {
         public int row,col;
@@ -371,215 +363,9 @@ public class BoardTest2 {
      * MAX_COL - max num of columns
      * removeTaskTile - arraylist to remove task tiles once agent has gone over them
      */
-    static void DFS (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited, ArrayList<Tile> removeTaskTile, int MAX_ROW, int MAX_COL){
+   
+    static void DFS (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited, ArrayList<Tile> removeTaskTile, int MAX_ROW, int MAX_COL, Scanner sc, boolean needEnter){
 
-        boolean unvisitedExists = false;
-        pos unvisited = new pos(0, 0); //initialize unvisited tile if there is left in the stack
-        boolean endDFS = false;
-
-        
-
-        //initialize a stack of positions
-        Stack<pos> posStack = new Stack<pos>();
-
-        int srow = agent.getX();
-        int scol = agent.getY();
-        
-        //mark starting cell as visited and push it sa stack
-        visited[srow][scol] = true;
-        //agent.incMove();
-        removeTask(grid,removeTaskTile, agent, MAX_ROW, MAX_COL);
-
-        System.out.println();
-        System.out.println("Starting DFS at (" + srow + ", " + scol + ")");
-        System.out.println("Agent Tasks Left: " + agent.tasksLeft());
-        System.out.println("Move Count: " + agent.getMovCount());
-        printBoard(MAX_ROW, MAX_COL, grid, agent);
-        System.out.println();
-        System.out.println("====================");
-
-        // time delay for execution
-        try {
-            Thread.sleep(3000); // 1 second
-        } catch (InterruptedException e) { 
-            Thread.currentThread().interrupt(); 
-            return;
-        }
-
-        // push the neighbors of the current cell into the stack so it will be explored later on
-        // in this case the neighbors are its neighbors on all four corners
-        for(int i = 0; i < 4; i++){
-            int adjR = srow + vRow[i]; // add the vector of the row
-            int adjC = scol + vCol[i];
-            if(isValid(visited, adjR, adjC, MAX_ROW, MAX_COL, grid, agent))
-                posStack.push(new pos(adjR, adjC));
-        }
-
-        while(!posStack.empty() && endDFS == false){
-            pos curr = posStack.pop(); // pop the ToS
-            int row = curr.row;
-            int col = curr.col;
-
-            if(isValid(visited, row, col, MAX_ROW, MAX_COL, grid,agent)){   
-                
-                visited[row][col] = true;
-
-                while (agent.getX() != row || agent.getY() != col) {
-
-                    int nextRow = agent.getX();
-                    int nextCol = agent.getY();
-                    
-                    
-                    
-                    if (isVerticalMove(agent.getX(), agent.getY(), MAX_COL) && agent.getX() != row) { //move to correct row first if we can move vertically
-                        if (row > agent.getX()) nextRow = agent.getX() + 1;
-                        else nextRow = agent.getX() - 1;
-                    }
-                    
-                    else if (agent.getY() != col) { //else move to correct column
-                        if (col > agent.getY()) nextCol = agent.getY() + 1;
-                        else nextCol = agent.getY() - 1;
-                    }
-                    //if cant move vertically, move toward stairs/elevator
-                    else if (!isVerticalMove(agent.getX(), agent.getY(), MAX_COL) && agent.getX() != row) {
-                        
-                        if (agent.getY() > 0) nextCol = agent.getY() - 1; //move toward stairs
-                        else nextCol = agent.getY() + 1; //move toward elevator
-                    }
-                    
-                
-                    
-                    agent.move(nextRow, nextCol);
-                    removeTask(grid, removeTaskTile, agent, MAX_ROW, MAX_COL);
-
-                    // Print movement info
-                    System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
-                    System.out.println("Agent Tasks Left: " + agent.tasksLeft());
-                    System.out.println("Move Count: " + agent.getMovCount());
-                    printBoard(MAX_ROW, MAX_COL, grid, agent);
-                    System.out.println("====================");
-
-                    try {
-                        Thread.sleep(3000); // 1 second
-                    } catch (InterruptedException e) { 
-                        Thread.currentThread().interrupt(); 
-                        return;
-                    }
-                    
-                }
-
-            
-            /* Mark final position as visited if it's a regular room
-            if (col != 0 && col != MAX_COL - 1) {
-                visited[row][col] = true;
-            }*/
-
-                // push the neighbors of the current cell into the stack so it will be explored later on
-                // in this case the neighbors are its neighbors on all four corners
-
-                for(int i = 0; i < 4; i++){
-                    Tile adjTile = agent.scan(MAX_ROW, MAX_COL, grid, vRow[i], vCol[i]);
-                    if(isValid(visited, adjTile.getX(), adjTile.getY(), MAX_ROW, MAX_COL, grid,agent))
-                        posStack.push(new pos(adjTile.getX(), adjTile.getY()));
-                }
-
-                if(agent.tasksLeft() == 0){ //if there are no tasks left
-                    Tile tile = agent.scan(MAX_ROW, MAX_COL, grid, 0, 0);
-                    String tileIcon = tile.getIcon();
-                    if(tileIcon.equals("[B]")){ //and agent is on boss tile
-                        agent.end();
-                        System.out.println(tileIcon);
-                        endDFS = true; //endDFS regardless if there is nodes left to be explored
-                    }
-                }
-
-                if(posStack.size() == 1){
-                    unvisitedExists = true;
-                    unvisited.setPos(curr.row, curr.col);
-                }
-                    
-        }
-
-       if(agent.tasksLeft() != 0){ //if there are still tasks, move agent to unvisited tile. first by row, then by column.
-                    if(unvisitedExists){
-                        while(unvisited.row != agent.getX()){
-                            if(unvisited.row > agent.getX()){
-                                agent.move(agent.getX()+1, agent.getY());
-                                removeTask(grid, removeTaskTile, agent, MAX_ROW, MAX_COL);
-                                System.out.println("Moving to Unvisited Node");
-                                System.out.println("Agent Tasks Left: " + agent.tasksLeft());
-                                System.out.println("Move Count: " + agent.getMovCount());
-                                System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
-                                printBoard(MAX_ROW, MAX_COL, grid, agent);
-                                System.out.println();
-                                System.out.println("====================");
-                            }
-
-                            if(unvisited.row < agent.getX()){
-                                agent.move(agent.getX()-1, agent.getY());
-                                removeTask(grid, removeTaskTile, agent, MAX_ROW, MAX_COL);
-                                System.out.println("Moving to Unvisited Node");
-                                System.out.println("Agent Tasks Left: " + agent.tasksLeft());
-                                System.out.println("Move Count: " + agent.getMovCount());
-                                System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
-                                printBoard(MAX_ROW, MAX_COL, grid, agent);
-                                System.out.println();
-                                System.out.println("====================");
-                            }
-
-                            try {
-                                Thread.sleep(3000); // 1 second
-                            } catch (InterruptedException e) { 
-                                    Thread.currentThread().interrupt(); 
-                                    return;
-                            }
-                        }
-
-                        while(unvisited.col != agent.getY()){
-
-                            if(unvisited.col > agent.getY()){
-                                agent.move(agent.getX(), agent.getY()+1);
-                                removeTask(grid, removeTaskTile, agent, MAX_ROW, MAX_COL);
-                                System.out.println("Moving to Unvisited Node");
-                                System.out.println("Agent Tasks Left: " + agent.tasksLeft());
-                                System.out.println("Move Count: " + agent.getMovCount());
-                                System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
-                                printBoard(MAX_ROW, MAX_COL, grid, agent);
-                                System.out.println();
-                                System.out.println("====================");
-                            }
-
-                            if(unvisited.col < agent.getY()){
-                                agent.move(agent.getX(), agent.getY()-1);
-                                removeTask(grid, removeTaskTile, agent, MAX_ROW, MAX_COL);
-                                System.out.println("Moving to Unvisited Node");
-                                System.out.println("Agent Tasks Left: " + agent.tasksLeft());
-                                System.out.println("Move Count: " + agent.getMovCount());
-                                System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
-                                printBoard(MAX_ROW, MAX_COL, grid, agent);
-                                System.out.println();
-                                System.out.println("====================");
-                            }
-                            
-                            try {
-                                Thread.sleep(3000); // 1 second
-                            } catch (InterruptedException e) { 
-                                    Thread.currentThread().interrupt(); 
-                                    return;
-                            }
-
-                        }
-                    }
-                
-                }
-        }
-    }
-
-
-static void DFSEnter (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited, ArrayList<Tile> removeTaskTile, int MAX_ROW, int MAX_COL, Scanner sc){
-
-        boolean unvisitedExists = false;
-        pos unvisited = new pos(0, 0); //initialize unvisited tile if there is left in the stack
         boolean endDFS = false;
 
         
@@ -653,15 +439,35 @@ static void DFSEnter (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited
                     agent.move(nextRow, nextCol);
                     removeTask(grid, removeTaskTile, agent, MAX_ROW, MAX_COL);
 
-                    sc.nextLine();
-                    // Print movement info
-                    System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
-                    System.out.println("Agent Tasks Left: " + agent.tasksLeft());
-                    System.out.println("Move Count: " + agent.getMovCount());
-                    printBoard(MAX_ROW, MAX_COL, grid, agent);
-                    System.out.println("====================");
 
+                    if (needEnter) {
+                        sc.nextLine();
+
+                        System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
+                        System.out.println("Agent Tasks Left: " + agent.tasksLeft());
+                        System.out.println("Move Count: " + agent.getMovCount());
+                        printBoard(MAX_ROW, MAX_COL, grid, agent);
+                        System.out.println("====================");
+                    }
+                    else{
+
+                        System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
+                        System.out.println("Agent Tasks Left: " + agent.tasksLeft());
+                        System.out.println("Move Count: " + agent.getMovCount());
+                        printBoard(MAX_ROW, MAX_COL, grid, agent);
+                        System.out.println("====================");
+
+                        try {
+                            Thread.sleep(1000); // 1 second
+                        }
+                        catch (InterruptedException e){ 
+                            Thread.currentThread().interrupt(); 
+                        return;
+                        }
+                    }
                 }
+
+            }
                 
                 
             
@@ -669,7 +475,7 @@ static void DFSEnter (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited
             if (col != 0 && col != MAX_COL - 1) {
                 visited[row][col] = true;
             }*/
-        }
+        
     
 
                 // push the neighbors of the current cell into the stack so it will be explored later on
@@ -690,86 +496,18 @@ static void DFSEnter (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited
                     }
                 }
               
-                if(posStack.size() == 1){
-                        unvisitedExists = true;
-                        unvisited.setPos(curr.row, curr.col);
-                    
-                }
-                
         }
-        if(agent.tasksLeft() != 0){ //if there are still tasks, move agent to unvisited tile. first by row, then by column.
-                    if(unvisitedExists){
-                        while(unvisited.row != agent.getX()){
-                            if(unvisited.row > agent.getX()){
-                                agent.move(agent.getX()+1, agent.getY());
-                                removeTask(grid, removeTaskTile, agent, MAX_ROW, MAX_COL);
-                                sc.nextLine();
-                                System.out.println("Moving to Unvisited Node");
-                                System.out.println("Agent Tasks Left: " + agent.tasksLeft());
-                                System.out.println("Move Count: " + agent.getMovCount());
-                                System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
-                                printBoard(MAX_ROW, MAX_COL, grid, agent);
-                                System.out.println();
-                                System.out.println("====================");
-                            }
-
-                            if(unvisited.row < agent.getX()){
-                                agent.move(agent.getX()-1, agent.getY());
-                                removeTask(grid, removeTaskTile, agent, MAX_ROW, MAX_COL);
-                                sc.nextLine();
-                                System.out.println("Moving to Unvisited Node");
-                                System.out.println("Agent Tasks Left: " + agent.tasksLeft());
-                                System.out.println("Move Count: " + agent.getMovCount());
-                                System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
-                                printBoard(MAX_ROW, MAX_COL, grid, agent);
-                                System.out.println();
-                                System.out.println("====================");
-                            }
-
-                            
-                        }
-
-                        while(unvisited.col != agent.getY()){
-
-                            if(unvisited.col > agent.getY()){
-                                agent.move(agent.getX(), agent.getY()+1);
-                                removeTask(grid, removeTaskTile, agent, MAX_ROW, MAX_COL);
-                                sc.nextLine();
-                                System.out.println("Moving to Unvisited Node");
-                                System.out.println("Agent Tasks Left: " + agent.tasksLeft());
-                                System.out.println("Move Count: " + agent.getMovCount());
-                                System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
-                                printBoard(MAX_ROW, MAX_COL, grid, agent);
-                                System.out.println();
-                                System.out.println("====================");
-                            }
-
-                            if(unvisited.col < agent.getY()){
-                                agent.move(agent.getX(), agent.getY()-1);
-                                removeTask(grid, removeTaskTile, agent, MAX_ROW, MAX_COL);
-                                sc.nextLine();
-                                System.out.println("Moving to Unvisited Node");
-                                System.out.println("Agent Tasks Left: " + agent.tasksLeft());
-                                System.out.println("Move Count: " + agent.getMovCount());
-                                System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
-                                printBoard(MAX_ROW, MAX_COL, grid, agent);
-                                System.out.println();
-                                System.out.println("====================");
-                            }
-                        }
-                   
-                    }
-            }
-        
-            
+                
     }
+        
+    
 
 
     public static void main(String[] args) {
 
         /*** SETTING UP BOARD & BASIC ELEMENTS: STAIRS, ELEVATORS, ROOMS ****/
 
-        int MAX_ROW = 4;
+        int MAX_ROW = 5;
         int MAX_COL = 4; 
         //ArrayList<Tile> boardTiles = new ArrayList<>(); //boardTiles ArrayList ver
         Tile boardTiles[][] = new Tile[MAX_ROW][MAX_COL];
@@ -798,13 +536,13 @@ static void DFSEnter (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited
         Tile boss = new Tile("[B]", 2, 1); //setting up boss tile
         boardTiles[boss.getX()][boss.getY()] = boss;
         
-        Tile task1 = new Tile("[T]", 3, 1); //setting up task tile
+        Tile task1 = new Tile("[T]", 1, 1); //setting up task tile
         boardTiles[task1.getX()][task1.getY()] = task1;
         taskTiles.add(task1);
 
-        //Tile task2 = new Tile("[T]", 3, 2); //setting up task tile
-        //boardTiles[task2.getX()][task2.getY()] = task2;
-        //taskTiles.add(task2);
+        Tile task2 = new Tile("[T]", 3, 2); //setting up task tile
+        boardTiles[task2.getX()][task2.getY()] = task2;
+        taskTiles.add(task2);
 
 
 
@@ -850,7 +588,18 @@ static void DFSEnter (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited
         if(choice == 1){
 
             while(agent.tasksLeft() != 0){
-                DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL);
+
+                for(int i = 0; i < MAX_ROW; i++){
+                        for(int j = 0; j < MAX_COL; j++){
+                            visited[i][j] = false;
+                        }
+                }
+
+                DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, false);
+
+            }
+
+            while(agent.getX()!=boss.getX() || agent.getY()!= boss.getY()){
 
                 if((agent.getX() != boss.getX())){
                     for(int i = 0; i < MAX_ROW; i++){
@@ -859,7 +608,7 @@ static void DFSEnter (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited
                         }
                     }
 
-                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL);
+                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, false);
                 }
                 
 
@@ -870,18 +619,29 @@ static void DFSEnter (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited
                         }
                     }
 
-                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL);
-            }
+                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, false);
+                }
 
             
-        }
+            }
 
         }
 
         if(choice == 2){
 
             while(agent.tasksLeft() != 0){
-                DFSEnter(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc);
+
+                for(int i = 0; i < MAX_ROW; i++){
+                        for(int j = 0; j < MAX_COL; j++){
+                            visited[i][j] = false;
+                        }
+                }
+
+                DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
+
+            }
+
+            while(agent.getX()!=boss.getX() || agent.getY()!= boss.getY()){
 
                 if((agent.getX() != boss.getX())){
                     for(int i = 0; i < MAX_ROW; i++){
@@ -890,7 +650,7 @@ static void DFSEnter (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited
                         }
                     }
 
-                    DFSEnter(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc);
+                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
                 }
                 
 
@@ -901,18 +661,16 @@ static void DFSEnter (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited
                         }
                     }
 
-                    DFSEnter(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc);
+                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
                 }
 
-        }
+            
+            }
 
         }
 
-       
-        
         sc.close();
         sc2.close();
-
-    }
     
+    }
 }
