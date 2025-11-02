@@ -36,28 +36,27 @@ class Agent extends Tile{
     private int fatigue = 0;
     private int movCount = 0;
 
-    Agent(String i, int x, int y, ArrayList<Tile> tasks){
+    private ArrayList<pos> path;
+
+    Agent(String i, int x, int y, ArrayList<Tile> tasks, ArrayList<pos> path){
         super(i, x, y);
         this.tasks = tasks;
+        this.path = path;
+        this.path.add(new pos(x,y));
     }
 
-    public void move(int row, int col, int MAX_COL){
-        if(col == MAX_COL - 1){
-            this.coords.set(0, row);
-            this.coords.set(1, col);
-            this.incMove();
-            //this.incMove();
-        } else if(col == 0){
-            this.coords.set(0, row);
-            this.coords.set(1, col);
-            this.incFatigue();
-            //this.incMove();
-        }
-    
+    public void move(int row, int col){
+
         this.coords.set(0, row);
         this.coords.set(1, col);
         this.incMove();
+
+        this.path.add(new pos(row,col));
         
+    }
+
+    public ArrayList<pos> getPath(){
+        return this.path;
     }
     
     public void updateTasks(ArrayList<Tile> tasks){
@@ -107,7 +106,20 @@ class Agent extends Tile{
         System.out.println();
     }
 
+}
 
+class pos {
+    public int row,col;
+
+    public pos(int row, int col){
+        this.row = row;
+        this.col = col;
+    }
+
+    public void setPos(int row, int col){
+        this.row = row;
+        this.col = col;
+     }
 }
 
 //x coord is row / what floor agent is on
@@ -177,6 +189,22 @@ public class BoardTest3 {
 
     }
 
+    public static void checkMoveCost(Agent agent, Tile[][] grid){
+        ArrayList<pos> currentPath = agent.getPath();
+
+        if(currentPath.size() >= 2){
+            pos fromPos = currentPath.get(currentPath.size() - 2);
+            pos toPos = currentPath.get(currentPath.size() - 1);
+
+            String fIcon = grid[fromPos.row][fromPos.col].getIcon();
+            String tIcon = grid[toPos.row][toPos.col].getIcon();
+
+            if(fIcon.equals("E") && tIcon.equals("E")) agent.incMove();
+            if(fIcon.equals("//") && tIcon.equals("//")) agent.incFatigue();
+        }
+
+    }
+
 
     /****************************************************  INTEGRATING DFS HERE ********************************************/
 
@@ -187,19 +215,6 @@ public class BoardTest3 {
     static int vBRow[] = {-1, 0, 1, 0};
     static int vBCol[] = {0, 1, 0, -1};
 
-    static class pos {
-        public int row,col;
-
-        public pos(int row, int col){
-            this.row = row;
-            this.col = col;
-        }
-
-        public void setPos(int row, int col){
-            this.row = row;
-            this.col = col;
-        }
-    }
 
 
     static Boolean isVerticalMove(int row, int col, int MAX_COL){
@@ -329,7 +344,8 @@ public class BoardTest3 {
                         
                     }
                     
-                    agent.move(nextRow, nextCol, MAX_COL);
+                    agent.move(nextRow, nextCol);
+                    checkMoveCost(agent,grid);
                     removeTask(grid, removeTaskTile, agent, MAX_ROW, MAX_COL);
 
 
@@ -498,7 +514,8 @@ public class BoardTest3 {
                     }
 
 
-                    agent.move(nextRow, nextCol, MAX_COL);
+                    agent.move(nextRow, nextCol);
+                    checkMoveCost(agent,grid);
                     removeTask(grid, removeTaskTile, agent, MAX_ROW, MAX_COL);
 
 
@@ -571,7 +588,7 @@ public class BoardTest3 {
         Tile boardTiles[][] = new Tile[MAX_ROW][MAX_COL];
 
         ArrayList<Tile> taskTiles = new ArrayList<>(); //task tiles for agent
-       ArrayList<Tile> removeTaskTile = new ArrayList<>(); //used to avoid ConcurrentModificationException when removing task from agent's tasks
+        
 
       
 
@@ -605,22 +622,17 @@ public class BoardTest3 {
 
 
         /* SETTING UP AGENT */
-        Agent agent = new Agent("A", 0, 1, taskTiles); //setting up agent tile
+        //Agent agent = new Agent("A", 0, 1, taskTiles); //setting up agent tile
         
         /**** SETTING UP DFS ****/
 
         //initalize visited array
-        Boolean visited [][] = new Boolean [MAX_ROW][MAX_COL];
-        for(int i = 0; i < MAX_ROW; i++){
-            for(int j = 0; j < MAX_COL; j++){
-                visited[i][j] = false;
-            }
-        }
 
         /* MAIN EVENT STARTS HERE */
         System.out.println("=================================");
         System.out.println("OFFICE INTERN: UNINFORMED SEARCH");
         System.out.println("=================================");
+        System.out.println();
 
 
         Scanner sc = new Scanner(System.in);
@@ -645,6 +657,18 @@ public class BoardTest3 {
 
         if(choice == 1){
 
+            ArrayList<Tile> removeTaskTile = new ArrayList<>();
+            ArrayList<pos> dfsPath = new ArrayList<>();
+            Agent agentDFS = new Agent("A", 0, 1, taskTiles, dfsPath);
+                
+            Boolean visited [][] = new Boolean [MAX_ROW][MAX_COL];
+
+            for(int i = 0; i < MAX_ROW; i++){
+                for(int j = 0; j < MAX_COL; j++){
+                    visited[i][j] = false;
+                }
+            }
+
             int view = 0;
 
             System.out.println();
@@ -664,7 +688,8 @@ public class BoardTest3 {
 
             if(view == 1){
 
-                while(agent.tasksLeft() != 0){
+
+                while(agentDFS.tasksLeft() != 0){
 
                     for(int i = 0; i < MAX_ROW; i++){
                             for(int j = 0; j < MAX_COL; j++){
@@ -672,11 +697,11 @@ public class BoardTest3 {
                             }
                     }
 
-                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, false);
+                    DFS(agentDFS, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, false);
 
                 }
 
-                while(!agent.scan(MAX_ROW, MAX_COL, boardTiles, 0, 0).getIcon().equals("[B]")){
+                while(!agentDFS.scan(MAX_ROW, MAX_COL, boardTiles, 0, 0).getIcon().equals("[B]")){
 
                     for(int i = 0; i < MAX_ROW; i++){
                             for(int j = 0; j < MAX_COL; j++){
@@ -684,14 +709,15 @@ public class BoardTest3 {
                             }
                     }
                     
-                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, false);
+                    DFS(agentDFS, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, false);
                 
                 }
             }
 
             if(view == 2){
 
-                while(agent.tasksLeft() != 0){
+
+                while(agentDFS.tasksLeft() != 0){
 
                     for(int i = 0; i < MAX_ROW; i++){
                             for(int j = 0; j < MAX_COL; j++){
@@ -699,11 +725,11 @@ public class BoardTest3 {
                             }
                     }
 
-                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
+                    DFS(agentDFS, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
 
                 }
 
-                while(!agent.scan(MAX_ROW, MAX_COL, boardTiles, 0, 0).getIcon().equals("[B]")){
+                while(!agentDFS.scan(MAX_ROW, MAX_COL, boardTiles, 0, 0).getIcon().equals("[B]")){
 
                     for(int i = 0; i < MAX_ROW; i++){
                             for(int j = 0; j < MAX_COL; j++){
@@ -711,7 +737,7 @@ public class BoardTest3 {
                             }
                     }
                     
-                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
+                    DFS(agentDFS, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
                 
                 }
 
@@ -724,6 +750,18 @@ public class BoardTest3 {
 
         if(choice == 2){
 
+            ArrayList<Tile> removeTaskTile = new ArrayList<>();
+            ArrayList<pos> bfsPath = new ArrayList<>();
+            Agent agentBFS = new Agent("A", 0, 1, taskTiles, bfsPath);
+                
+            Boolean visited [][] = new Boolean [MAX_ROW][MAX_COL];
+
+            for(int i = 0; i < MAX_ROW; i++){
+                for(int j = 0; j < MAX_COL; j++){
+                    visited[i][j] = false;
+                }
+            }
+
             int view = 0;
 
             System.out.println();
@@ -743,7 +781,7 @@ public class BoardTest3 {
 
             if(view == 1){
 
-                while(agent.tasksLeft() != 0){
+                while(agentBFS.tasksLeft() != 0){
 
                     for(int i = 0; i < MAX_ROW; i++){
                             for(int j = 0; j < MAX_COL; j++){
@@ -751,11 +789,11 @@ public class BoardTest3 {
                             }
                     }
 
-                    BFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, false);
+                    BFS(agentBFS, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, false);
 
                 }
 
-                while(!agent.scan(MAX_ROW, MAX_COL, boardTiles, 0, 0).getIcon().equals("[B]")){
+                while(!agentBFS.scan(MAX_ROW, MAX_COL, boardTiles, 0, 0).getIcon().equals("[B]")){
 
                     for(int i = 0; i < MAX_ROW; i++){
                             for(int j = 0; j < MAX_COL; j++){
@@ -763,14 +801,14 @@ public class BoardTest3 {
                             }
                     }
                     
-                    BFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, false);
+                    BFS(agentBFS, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, false);
                 
                 }
             }
 
             if(view == 2){
 
-                while(agent.tasksLeft() != 0){
+                while(agentBFS.tasksLeft() != 0){
 
                     for(int i = 0; i < MAX_ROW; i++){
                             for(int j = 0; j < MAX_COL; j++){
@@ -778,11 +816,11 @@ public class BoardTest3 {
                             }
                     }
 
-                    BFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
+                    BFS(agentBFS, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
 
                 }
 
-                while(!agent.scan(MAX_ROW, MAX_COL, boardTiles, 0, 0).getIcon().equals("[B]")){
+                while(!agentBFS.scan(MAX_ROW, MAX_COL, boardTiles, 0, 0).getIcon().equals("[B]")){
 
                     for(int i = 0; i < MAX_ROW; i++){
                             for(int j = 0; j < MAX_COL; j++){
@@ -790,7 +828,7 @@ public class BoardTest3 {
                             }
                     }
                     
-                    BFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
+                    BFS(agentBFS, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
                 
                 }
 
