@@ -288,7 +288,7 @@ public class BoardTest3 {
                 visited[row][col] = true;
               
 
-                while (agent.getX() != row || agent.getY() != col) {
+                while ((agent.getX() != row || agent.getY() != col) && !endDFS) {
 
                     int nextRow = agent.getX();
                     int nextCol = agent.getY();
