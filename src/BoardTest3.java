@@ -455,7 +455,7 @@ public class BoardTest3 {
                 visited[row][col] = true;
               
 
-                while (agent.getX() != row || agent.getY() != col) {
+                while ((agent.getX() != row || agent.getY() != col) && !endBFS) {
 
                     
                     int nextRow = agent.getX();
@@ -538,6 +538,7 @@ public class BoardTest3 {
                         if(tileIcon.equals("[B]")){ //and agent is on boss tile
                             agent.end();
                             endBFS = true; //endDFS regardless if there is nodes left to be explored
+                            posQueue.clear();
                         }
                     }
                 }
@@ -555,8 +556,7 @@ public class BoardTest3 {
                     }
                 }
         }
-
-                
+  
     }
     
 
@@ -565,8 +565,8 @@ public class BoardTest3 {
 
         /*** SETTING UP BOARD & BASIC ELEMENTS: STAIRS, ELEVATORS, ROOMS ****/
 
-        int MAX_ROW = 3;
-        int MAX_COL = 3; 
+        int MAX_ROW = 4;
+        int MAX_COL = 4; 
         //ArrayList<Tile> boardTiles = new ArrayList<>(); //boardTiles ArrayList ver
         Tile boardTiles[][] = new Tile[MAX_ROW][MAX_COL];
 
@@ -801,6 +801,5 @@ public class BoardTest3 {
 
         sc.close();
         sc2.close();
-    
     }
 }
