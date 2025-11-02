@@ -375,13 +375,6 @@ public class BoardTest3 {
             }
                 
                 
-            
-            /* Mark final position as visited if it's a regular room
-            if (col != 0 && col != MAX_COL - 1) {
-                visited[row][col] = true;
-            }*/
-        
-    
 
                 // push the neighbors of the current cell into the stack so it will be explored later on
                 // in this case the neighbors are its neighbors on all four corners
@@ -417,7 +410,7 @@ public class BoardTest3 {
 
         boolean endBFS = false;
 
-        Tile tile = agent.scan(MAX_ROW, MAX_COL, grid, MAX_ROW, MAX_COL);
+
 
         //initialize a queue of positions
         Queue<pos> posQueue = new LinkedList<pos>();
@@ -504,31 +497,7 @@ public class BoardTest3 {
                         
                     }
 
-                    
 
-                    if(agent.getX() != nextRow){
-                        if(nextRow > agent.getX()){
-                            tile = agent.scan(MAX_ROW, MAX_COL, grid, 1, 0);
-                        }
-                        else{
-                            tile = agent.scan(MAX_ROW, MAX_COL, grid, -1, 0);
-   
-                        }
-                    }
-
-
-
-                    if(agent.getX() != nextCol){
-                        if(nextCol > agent.getX()){
-                             tile = agent.scan(MAX_ROW, MAX_COL, grid, 0, 1);
-                            
-                        }
-                        else{
-                             tile = agent.scan(MAX_ROW, MAX_COL, grid, 0, -1);
-                            
-                        }
-                    }
-                    
                     agent.move(nextRow, nextCol, MAX_COL);
                     removeTask(grid, removeTaskTile, agent, MAX_ROW, MAX_COL);
 
@@ -564,26 +533,17 @@ public class BoardTest3 {
                     }
 
                     if(agent.tasksLeft() == 0){ //if there are no tasks left
-                        
-                        if(tile.getIcon().equals("[B]")){ //and agent is on boss tile
+                        Tile tile = agent.scan(MAX_ROW, MAX_COL, grid, 0, 0);
+                        String tileIcon = tile.getIcon();
+                        if(tileIcon.equals("[B]")){ //and agent is on boss tile
                             agent.end();
-                            posQueue.clear();
-                            endBFS = true; //endBFS regardless if there is nodes left to be explored
-                            
+                            endBFS = true; //endDFS regardless if there is nodes left to be explored
                         }
                     }
                 }
             }
                 
                 
-            
-            /* Mark final position as visited if it's a regular room
-            if (col != 0 && col != MAX_COL - 1) {
-                visited[row][col] = true;
-            }*/
-        
-    
-
                 // push the neighbors of the current cell into the stack so it will be explored later on
                 // in this case the neighbors are its neighbors on all four corners
 
