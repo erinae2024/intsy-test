@@ -91,27 +91,6 @@ class Agent extends Tile{
         return this.movCount;
     }
 
-    
-
-    /*RETURN STRING SCAN FUNCTION
-    public String scan(int MAX_ROW, int MAX_COL, ArrayList<Tile> boardTiles, int row, int col){
-        int x = row;
-        int y = col;
-        if(y == 0)
-            return "//";
-        
-        if(y == MAX_COL)
-            return "E";
-        else{
-           for(Tile curr : boardTiles){
-                if(curr.getX() == x && curr.getY() == y){
-                    return curr.getIcon();
-                }
-           }
-           return null;
-        }
-    }*/
-
     public Tile scan(int MAX_ROW, int MAX_COL, Tile[][] boardTiles, int incRow, int incCol){
         for(int i = 0; i < MAX_ROW; i++){
             for(int j = 0; j < MAX_COL; j++){
@@ -381,6 +360,15 @@ public class BoardTest3 {
                     }
                 }
 
+                if(agent.tasksLeft() == 0){ //if there are no tasks left
+                    Tile tile = agent.scan(MAX_ROW, MAX_COL, grid, 0, 0);
+                    String tileIcon = tile.getIcon();
+                    if(tileIcon.equals("[B]")){ //and agent is on boss tile
+                        agent.end();
+                        endDFS = true; //endDFS regardless if there is nodes left to be explored
+                    }
+                }
+
             }
                 
                 
@@ -401,14 +389,7 @@ public class BoardTest3 {
                         posStack.push(new pos(adjTile.getX(), adjTile.getY()));
                 }
 
-                if(agent.tasksLeft() == 0){ //if there are no tasks left
-                    Tile tile = agent.scan(MAX_ROW, MAX_COL, grid, 0, 0);
-                    String tileIcon = tile.getIcon();
-                    if(tileIcon.equals("[B]")){ //and agent is on boss tile
-                        agent.end();
-                        endDFS = true; //endDFS regardless if there is nodes left to be explored
-                    }
-                }
+                
               
         }
                 
@@ -421,8 +402,8 @@ public class BoardTest3 {
 
         /*** SETTING UP BOARD & BASIC ELEMENTS: STAIRS, ELEVATORS, ROOMS ****/
 
-        int MAX_ROW = 5;
-        int MAX_COL = 4; 
+        int MAX_ROW = 3;
+        int MAX_COL = 3; 
         //ArrayList<Tile> boardTiles = new ArrayList<>(); //boardTiles ArrayList ver
         Tile boardTiles[][] = new Tile[MAX_ROW][MAX_COL];
 
@@ -454,9 +435,9 @@ public class BoardTest3 {
         boardTiles[task1.getX()][task1.getY()] = task1;
         taskTiles.add(task1);
 
-        Tile task2 = new Tile("[T]", 3, 2); //setting up task tile
-        boardTiles[task2.getX()][task2.getY()] = task2;
-        taskTiles.add(task2);
+        //Tile task2 = new Tile("[T]", 3, 2); //setting up task tile
+        //boardTiles[task2.getX()][task2.getY()] = task2;
+        //taskTiles.add(task2);
 
 
 
@@ -513,33 +494,20 @@ public class BoardTest3 {
 
             }
 
-            while(agent.getX()!=boss.getX() || agent.getY()!= boss.getY()){
+            while(!agent.scan(MAX_ROW, MAX_COL, boardTiles, 0, 0).getIcon().equals("[B]")){
 
-                if((agent.getX() != boss.getX())){
-                    for(int i = 0; i < MAX_ROW; i++){
+                for(int i = 0; i < MAX_ROW; i++){
                         for(int j = 0; j < MAX_COL; j++){
                             visited[i][j] = false;
                         }
                     }
-
-                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, false);
-                }
                 
-
-                if((agent.getY() != boss.getY())){
-                    for(int i = 0; i < MAX_ROW; i++){
-                        for(int j = 0; j < MAX_COL; j++){
-                            visited[i][j] = false;
-                        }
-                    }
-
-                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, false);
-                }
-
-            
+                DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
             }
 
         }
+
+        
 
         if(choice == 2){
 
@@ -554,32 +522,6 @@ public class BoardTest3 {
                 DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
 
             }
-
-            /*while(agent.getX()!=boss.getX() || agent.getY()!= boss.getY()){
-
-                if((agent.getX() != boss.getX())){
-                    for(int i = 0; i < MAX_ROW; i++){
-                        for(int j = 0; j < MAX_COL; j++){
-                            visited[i][j] = false;
-                        }
-                    }
-
-                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
-                }
-                
-
-                if((agent.getY() != boss.getY())){
-                    for(int i = 0; i < MAX_ROW; i++){
-                        for(int j = 0; j < MAX_COL; j++){
-                            visited[i][j] = false;
-                        }
-                    }
-
-                    DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
-                }
-
-            
-            }*/
 
             while(!agent.scan(MAX_ROW, MAX_COL, boardTiles, 0, 0).getIcon().equals("[B]")){
 
