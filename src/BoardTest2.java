@@ -165,10 +165,23 @@ class Agent extends Tile{
         this.coords.set(1, y);
     }*/
 
-    public void move(int row, int col){
+    public void move(int row, int col, int MAX_COL){
+        if(col == MAX_COL - 1){
+            this.coords.set(0, row);
+            this.coords.set(1, col);
+            this.incMove();
+            //this.incMove();
+        } else if(col == 0){
+            this.coords.set(0, row);
+            this.coords.set(1, col);
+            this.incFatigue();
+            //this.incMove();
+        }
+    
         this.coords.set(0, row);
         this.coords.set(1, col);
         this.incMove();
+        
     }
     
     public void updateTasks(ArrayList<Tile> tasks){
@@ -189,6 +202,10 @@ class Agent extends Tile{
         return this.fatigue;
     }
 
+    public void incFatigue(){
+        this.fatigue++;
+    }
+
     public void incMove(){
         this.movCount++;
     }
@@ -198,7 +215,6 @@ class Agent extends Tile{
     }
 
     
-
 
     /*RETURN STRING SCAN FUNCTION
     public String scan(int MAX_ROW, int MAX_COL, ArrayList<Tile> boardTiles, int row, int col){
@@ -242,7 +258,7 @@ class Agent extends Tile{
 //x coord is row / what floor agent is on
 //y coord is column / what tile agent is on
 
-public class BoardTest2 {
+public class BoardTest3 {
 
     /*
      * printBoard -> prints all tiles on the board
@@ -385,6 +401,7 @@ public class BoardTest2 {
         System.out.println("Starting DFS at (" + srow + ", " + scol + ")");
         System.out.println("Agent Tasks Left: " + agent.tasksLeft());
         System.out.println("Move Count: " + agent.getMovCount());
+        System.out.println("Fatigue Points: " + agent.getFatigue());
 
         printBoard(MAX_ROW, MAX_COL, grid, agent);
         System.out.println();
@@ -427,6 +444,7 @@ public class BoardTest2 {
                         if (col > agent.getY()) nextCol = agent.getY() + 1;
                         else nextCol = agent.getY() - 1;
                     }
+                    
                     //if cant move vertically, move toward stairs/elevator
                     else if (!isVerticalMove(agent.getX(), agent.getY(), MAX_COL) && agent.getX() != row) {
                         
@@ -434,9 +452,7 @@ public class BoardTest2 {
                         else nextCol = agent.getY() + 1; //move toward elevator
                     }
                     
-                
-                    
-                    agent.move(nextRow, nextCol);
+                    agent.move(nextRow, nextCol, MAX_COL);
                     removeTask(grid, removeTaskTile, agent, MAX_ROW, MAX_COL);
 
 
@@ -446,6 +462,7 @@ public class BoardTest2 {
                         System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
                         System.out.println("Agent Tasks Left: " + agent.tasksLeft());
                         System.out.println("Move Count: " + agent.getMovCount());
+                        System.out.println("Fatigue Points: " + agent.getFatigue());
                         printBoard(MAX_ROW, MAX_COL, grid, agent);
                         System.out.println("====================");
                     }
@@ -454,6 +471,7 @@ public class BoardTest2 {
                         System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
                         System.out.println("Agent Tasks Left: " + agent.tasksLeft());
                         System.out.println("Move Count: " + agent.getMovCount());
+                        System.out.println("Fatigue Points: " + agent.getFatigue());
                         printBoard(MAX_ROW, MAX_COL, grid, agent);
                         System.out.println("====================");
 
