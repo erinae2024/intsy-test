@@ -476,7 +476,9 @@ public class BoardTest2 {
                 }
 
                 if(agent.tasksLeft() == 0){ //if there are no tasks left
-                    if(agent.getX() == boss.getX() && agent.getY() == boss.getY()){ //and agent is on boss tile
+                    Tile tile = agent.scan(MAX_ROW, MAX_COL, grid, 0, 0);
+                    String tileIcon = tile.getIcon();
+                    if(tileIcon.equals("[B]")){ //and agent is on boss tile
                         agent.end();
                         endDFS = true; //endDFS regardless if there is nodes left to be explored
                     }
@@ -660,7 +662,9 @@ static void DFSEnter (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited
                 }
 
                 if(agent.tasksLeft() == 0){ //if there are no tasks left
-                    if(agent.getX() == boss.getX() && agent.getY() == boss.getY()){ //and agent is on boss tile
+                    Tile tile = agent.scan(MAX_ROW, MAX_COL, grid, 0, 0);
+                    String tileIcon = tile.getIcon();
+                    if(tileIcon.equals("[B]")){ //and agent is on boss tile
                         agent.end();
                         endDFS = true; //endDFS regardless if there is nodes left to be explored
                     }
@@ -747,8 +751,8 @@ static void DFSEnter (Agent agent, Tile boss, Tile[][] grid, Boolean[][] visited
 
         /*** SETTING UP BOARD & BASIC ELEMENTS: STAIRS, ELEVATORS, ROOMS ****/
 
-        int MAX_ROW = 4;
-        int MAX_COL = 4; 
+        int MAX_ROW = 3;
+        int MAX_COL = 3; 
         //ArrayList<Tile> boardTiles = new ArrayList<>(); //boardTiles ArrayList ver
         Tile boardTiles[][] = new Tile[MAX_ROW][MAX_COL];
 
