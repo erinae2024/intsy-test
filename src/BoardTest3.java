@@ -1,118 +1,3 @@
-/* FORMER ARRAYLIST STUFF
-
-
-    [PRINTBOARD FUNCTION]
- * public static void printBoard(int MAX_ROW, int MAX_COL, ArrayList<Tile> boardTiles, Agent agent){
-        System.out.println();
-        for(int i = 0; i < MAX_ROW; i++){
-            for(int j = 0; j < MAX_COL; j++){
-                if(agent.getX() == i && agent.getY() == j){
-                    if(j != 0 && j != MAX_COL-1)
-                        System.out.print("[" + agent.getIcon() + "]"); //if agent is on a room tile
-                    else if (j == 0)
-                            System.out.print(" " + agent.getIcon()); //if agent is on a stairs tile
-                        else
-                            System.out.print(agent.getIcon()); //if agent is on elevator tile
-                }
-                
-                else{ //print all other tiles
-                    for(Tile curr : boardTiles){
-                        if(i == curr.getX() && j == curr.getY())
-                            System.out.print(curr.getIcon());
-                    }
-                }
-            }
-
-            System.out.println();
-        }
-    }
-
-    [REMOVE TASK FUNCITON]
-    public static void removeTask(ArrayList<Tile> boardTiles, ArrayList<Tile> removeTaskTile, Agent agent){
-
-        String taskIcon = "[T]";
-        ArrayList<Tile> tasks = agent.getTasks();
-
-        for(Tile curr : boardTiles){
-            if(agent.getX() == curr.getX() && agent.getY() == curr.getY()){ //if agent is on curr's coords
-                if(taskIcon.equals(curr.getIcon())){ //and curr's coords has the task icon
-                    removeTaskTile.add(curr); //add to removeTaskTile list 
-                    curr.setIcon("[ ]"); //and set curr's icon to an empty room
-                }
-                    
-            }
-        }
-
-       tasks.removeAll(removeTaskTile); //remove task from taskTiles list
-       agent.updateTasks(tasks); 
-
-    }
-
-      /* SETUP FOR boardTiles ArrayList ver
-        for(int i = 0; i < MAX_ROW; i++){ 
-            for(int j = 0; j < MAX_COL; j++){
-                if(j == 0)
-                    boardTiles.add(new Tile("//", i, j));
-                else if (j == MAX_COL-1)
-                    boardTiles.add(new Tile("E", i, j));
-                else
-                    boardTiles.add(new Tile("[ ]", i, j));
-            }
-        }
-        */
-
-         /*** SETTING UP UNIQUE BOARD ELEMENTS: BOSS, TASK,  ETC.  boardTiles ArrayList ver 
-
-        Tile boss = new Tile("[B]", 2, 2); //setting up boss tile
-        for(Tile curr : boardTiles){
-            if(curr.getX() == boss.getX() && curr.getY() == boss.getY())
-                boardTiles.set(boardTiles.indexOf(curr), boss);
-        }
-
-        Tile task1 = new Tile("[T]", 3, 1); //setting up task tile
-        taskTiles.add(task1);
-        for(Tile curr : boardTiles){
-            if(curr.getX() == task1.getX() && curr.getY() == task1.getY())
-                boardTiles.set(boardTiles.indexOf(curr), task1);
-        }
-
-        Tile task2 = new Tile("[T]", 3, 2); //setting up task tile
-        taskTiles.add(task2);
-        for(Tile curr : boardTiles){
-            if(curr.getX() == task2.getX() && curr.getY() == task2.getY())
-                boardTiles.set(boardTiles.indexOf(curr), task2);
-        }
-        
-
-        [TEST STUFF]
-             /* 
-        agent.setX(3); agent.setY(1);
-
-        removeTask(boardTiles, removeTaskTile, agent, MAX_ROW, MAX_COL);
-
-        System.out.println("Agent Tasks Left: " + agent.tasksLeft());
-        printBoard(MAX_ROW, MAX_COL, boardTiles, agent);
-        System.out.println();
-
-
-        agent.setX(3); agent.setY(2);
-
-        removeTask(boardTiles, removeTaskTile, agent, MAX_ROW, MAX_COL);
-
-        System.out.println("Agent Tasks Left: " + agent.tasksLeft());
-        printBoard(MAX_ROW, MAX_COL, boardTiles, agent);
-        System.out.println();
-
-         agent.setX(0); agent.setY(1);
-
-        removeTask(boardTiles, removeTaskTile, agent, MAX_ROW, MAX_COL);
-
-        System.out.println("Agent Tasks Left: " + agent.tasksLeft());
-        printBoard(MAX_ROW, MAX_COL, boardTiles, agent);
-        System.out.println();
-        */
-
-
 import java.util.*;
 
 class Tile{
@@ -156,14 +41,6 @@ class Agent extends Tile{
         super(i, x, y);
         this.tasks = tasks;
     }
-
-   /* public void setX(int x){ 
-        this.coords.set(0, x);
-    }
-
-    public void setY(int y){ 
-        this.coords.set(1, y);
-    }*/
 
     public void move(int row, int col, int MAX_COL){
         if(col == MAX_COL - 1){
@@ -436,20 +313,37 @@ public class BoardTest3 {
                     
                     
                     if (isVerticalMove(agent.getX(), agent.getY(), MAX_COL) && agent.getX() != row) { //move to correct row first if we can move vertically
-                        if (row > agent.getX()) nextRow = agent.getX() + 1;
-                        else nextRow = agent.getX() - 1;
+                        if (row > agent.getX()){
+                            nextRow = agent.getX() + 1;
+                        }
+                        else {
+                            nextRow = agent.getX() - 1;
+                        }
                     }
                     
                     else if (agent.getY() != col) { //else move to correct column
-                        if (col > agent.getY()) nextCol = agent.getY() + 1;
-                        else nextCol = agent.getY() - 1;
+                        if (col > agent.getY()){
+                            nextCol = agent.getY() + 1;
+                        }
+                        else {
+                            nextCol = agent.getY() - 1;
+                        }
                     }
                     
                     //if cant move vertically, move toward stairs/elevator
                     else if (!isVerticalMove(agent.getX(), agent.getY(), MAX_COL) && agent.getX() != row) {
                         
-                        if (agent.getY() > 0) nextCol = agent.getY() - 1; //move toward stairs
-                        else nextCol = agent.getY() + 1; //move toward elevator
+                        if (agent.scan(MAX_ROW, MAX_COL, grid, 0, 1).getIcon().equals("E")){
+                            nextCol = agent.getY() + 1; //move toward elevator
+                        }
+                        else if(agent.scan(MAX_ROW, MAX_COL, grid, 0, -1).getIcon().equals("//")){
+                            nextCol = agent.getY() + 1; //move toward stairs
+                        }
+                        else {
+                            nextCol = agent.getY() + 1; //move toward elevator
+                        }
+                            
+                        
                     }
                     
                     agent.move(nextRow, nextCol, MAX_COL);
@@ -459,6 +353,7 @@ public class BoardTest3 {
                     if (needEnter) {
                         sc.nextLine();
 
+                        System.out.println("Target Position (" + row + ", " + col + ")");
                         System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
                         System.out.println("Agent Tasks Left: " + agent.tasksLeft());
                         System.out.println("Move Count: " + agent.getMovCount());
@@ -468,6 +363,7 @@ public class BoardTest3 {
                     }
                     else{
 
+                        System.out.println("Target Position (" + row + ", " + col + ")");
                         System.out.println("Moved to (" + agent.getX() + ", " + agent.getY() + ")");
                         System.out.println("Agent Tasks Left: " + agent.tasksLeft());
                         System.out.println("Move Count: " + agent.getMovCount());
@@ -659,7 +555,7 @@ public class BoardTest3 {
 
             }
 
-            while(agent.getX()!=boss.getX() || agent.getY()!= boss.getY()){
+            /*while(agent.getX()!=boss.getX() || agent.getY()!= boss.getY()){
 
                 if((agent.getX() != boss.getX())){
                     for(int i = 0; i < MAX_ROW; i++){
@@ -683,6 +579,17 @@ public class BoardTest3 {
                 }
 
             
+            }*/
+
+            while(!agent.scan(MAX_ROW, MAX_COL, boardTiles, 0, 0).getIcon().equals("[B]")){
+
+                for(int i = 0; i < MAX_ROW; i++){
+                        for(int j = 0; j < MAX_COL; j++){
+                            visited[i][j] = false;
+                        }
+                    }
+                
+                DFS(agent, boss, boardTiles, visited, removeTaskTile, MAX_ROW, MAX_COL, sc, true);
             }
 
         }
