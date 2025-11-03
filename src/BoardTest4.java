@@ -203,7 +203,7 @@ public class BoardTest4 {
         boardTiles[task2.getX()][task2.getY()] = task2;
         taskTiles.add(task2);
 
-        Tile underMaint = new Tile("M ", 0, 0);
+        Tile underMaint = new Tile("M ", 3, 0);
         boardTiles[underMaint.getX()][underMaint.getY()] = underMaint;
 
         //Tile sekyu = new Tile("[S]",3, 1);
@@ -757,16 +757,6 @@ public class BoardTest4 {
             Agent agentDFS = new Agent("A", currLevel.srow, currLevel.scol, taskTiles);
             printBoard(currLevel.MAX_ROW, currLevel.MAX_COL, currLevel.boardTiles, agentDFS);
 
-            while (agentDFS.tasksLeft() != 0) {
-                for(int i = 0; i < currLevel.MAX_ROW; i++){
-                            for(int j = 0; j < currLevel.MAX_COL; j++){
-                                visited[i][j] = false;
-                            }
-                    }
-
-                DFS(agentDFS, currLevel.boss, currLevel.boardTiles, visited, removeTaskTile, currLevel.MAX_ROW, currLevel.MAX_COL, sc, needEnter);
-            }
-
             while (!agentDFS.scan(currLevel.MAX_ROW, currLevel.MAX_COL, currLevel.boardTiles, 0, 0).getIcon().equals("[B]")) {
                 for(int i = 0; i < currLevel.MAX_ROW; i++){
                             for(int j = 0; j < currLevel.MAX_COL; j++){
@@ -775,22 +765,11 @@ public class BoardTest4 {
                     }
                 DFS(agentDFS, currLevel.boss, currLevel.boardTiles, visited, removeTaskTile, currLevel.MAX_ROW, currLevel.MAX_COL, sc, needEnter);
             }
-            System.out.println("DFS Simulation Complete.");
 
         } else if (choice == 2){
             
             Agent agentBFS = new Agent("A", currLevel.srow, currLevel.scol, taskTiles);
             printBoard(currLevel.MAX_ROW, currLevel.MAX_COL, currLevel.boardTiles, agentBFS);
-
-            while (agentBFS.tasksLeft() != 0) {
-                for(int i = 0; i < currLevel.MAX_ROW; i++){
-                            for(int j = 0; j < currLevel.MAX_COL; j++){
-                                visited[i][j] = false;
-                            }
-                    }
-
-                BFS(agentBFS, currLevel.boss, currLevel.boardTiles, visited, removeTaskTile, currLevel.MAX_ROW, currLevel.MAX_COL, sc, needEnter);
-            }
 
             while (!agentBFS.scan(currLevel.MAX_ROW, currLevel.MAX_COL, currLevel.boardTiles, 0, 0).getIcon().equals("[B]")) {
                 for(int i = 0; i < currLevel.MAX_ROW; i++){
@@ -800,8 +779,12 @@ public class BoardTest4 {
                     }
                 BFS(agentBFS, currLevel.boss, currLevel.boardTiles, visited, removeTaskTile, currLevel.MAX_ROW, currLevel.MAX_COL, sc, needEnter);
             }
-            System.out.println("BFS Simulation Complete.");
 
+            for(int i = 0; i < currLevel.MAX_ROW; i++){
+                            for(int j = 0; j < currLevel.MAX_COL; j++){
+                                visited[i][j] = false;
+                            }
+            }
 
         }
 
