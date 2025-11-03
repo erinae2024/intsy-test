@@ -45,18 +45,6 @@ class Agent extends Tile{
     }
 
     public void move(int row, int col, int MAX_COL){
-        if(col == MAX_COL - 1){
-            this.coords.set(0, row);
-            this.coords.set(1, col);
-            //this.incMove();
-            //this.incMove();
-        } else if(col == 0){
-            this.coords.set(0, row);
-            this.coords.set(1, col);
-            //this.incFatigue();
-            //this.incMove();
-        }
-    
         this.coords.set(0, row);
         this.coords.set(1, col);
         this.incMove();
