@@ -221,6 +221,13 @@ public class BoardTest3 {
             return false;
         }
 
+        for(int i = 0; i < MAX_COL; i++){
+          if(grid[row][i].getIcon().equals("SG")) return false;
+        }
+      
+        String icon = grid[row][col].getIcon();
+        if(icon.equals("[M]") return false;
+
         if(row != agent.getX()){
             return isVerticalMove(row, col, MAX_COL);
         }
