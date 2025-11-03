@@ -378,10 +378,9 @@ public class BoardTest4 {
         // push the neighbors of the current cell into the stack so it will be explored later on
         // in this case the neighbors are its neighbors on all four corners
         for(int i = 0; i < 4; i++){
-            int adjR = srow + vRow[i]; // add the vector of the row
-            int adjC = scol + vCol[i];
-            if(isValid(visited, adjR, adjC, MAX_ROW, MAX_COL, grid, agent))
-                posStack.push(new pos(adjR, adjC));
+            Tile adjTile = agent.scan(MAX_ROW, MAX_COL, grid, vBRow[i], vBCol[i]);
+            if(isValid(visited, adjTile.getX(), adjTile.getY(), MAX_ROW, MAX_COL, grid,agent))
+                posStack.push(new pos(adjTile.getX(), adjTile.getY()));
         }
 
         while(!posStack.empty() && endDFS == false){
@@ -545,10 +544,9 @@ public class BoardTest4 {
         // push the neighbors of the current cell into the stack so it will be explored later on
         // in this case the neighbors are its neighbors on all four corners
         for(int i = 0; i < 4; i++){
-            int adjR = srow + vBRow[i]; // add the vector of the row
-            int adjC = scol + vBCol[i];
-            if(isValid(visited, adjR, adjC, MAX_ROW, MAX_COL, grid, agent))
-                posQueue.add(new pos(adjR, adjC));
+            Tile adjTile = agent.scan(MAX_ROW, MAX_COL, grid, vBRow[i], vBCol[i]);
+            if(isValid(visited, adjTile.getX(), adjTile.getY(), MAX_ROW, MAX_COL, grid,agent))
+                posQueue.add(new pos(adjTile.getX(), adjTile.getY()));
         }
 
         while(!posQueue.isEmpty() && endBFS == false){
