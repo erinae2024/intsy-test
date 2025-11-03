@@ -139,7 +139,7 @@ public class BoardTest4 {
     /*------------------------------------------ INITIALIZE GAME LEVELS ------------------------------------------ */
     public static gameLevel setupLvlOne(){
         int MAX_ROW = 4;
-        int MAX_COL = 4;
+        int MAX_COL = 5;
         Tile boardTiles[][] = new Tile[MAX_ROW][MAX_COL];
         ArrayList<Tile> taskTiles = new ArrayList<>();
 
@@ -176,7 +176,7 @@ public class BoardTest4 {
 
     public static gameLevel setupLvlTwo(){
         int MAX_ROW = 4;
-        int MAX_COL = 4;
+        int MAX_COL = 5;
         Tile boardTiles[][] = new Tile[MAX_ROW][MAX_COL];
         ArrayList<Tile> taskTiles = new ArrayList<>();
 
@@ -203,11 +203,11 @@ public class BoardTest4 {
         boardTiles[task2.getX()][task2.getY()] = task2;
         taskTiles.add(task2);
 
-        Tile underMaint = new Tile("M",1, 0);
+        Tile underMaint = new Tile("M ", 0, 0);
         boardTiles[underMaint.getX()][underMaint.getY()] = underMaint;
 
-        Tile sekyu = new Tile("SG",3, 1);
-        boardTiles[sekyu.getX()][sekyu.getY()] = sekyu;
+        //Tile sekyu = new Tile("[S]",3, 1);
+        //boardTiles[sekyu.getX()][sekyu.getY()] = sekyu;
 
         
         // Agent starts at (0, 1)
@@ -307,10 +307,16 @@ public class BoardTest4 {
     }
 
 
-    static Boolean isVerticalMove(int row, int col, int MAX_COL){
+    static Boolean isVerticalMove(int row, int col, int MAX_ROW, int MAX_COL, Agent agent, Tile[][] grid){
         if(col != 0 && col != MAX_COL -1){
             return false;
         }
+
+        if((agent.scan(MAX_ROW, MAX_COL, grid, 1, 0).getIcon().equals("M ")) || agent.scan(MAX_ROW, MAX_COL, grid, -1, 0).getIcon().equals("M ")){
+            return false;
+        }
+        
+
         return true;
     }
 
@@ -328,12 +334,12 @@ public class BoardTest4 {
 
         String icon = grid[row][col].getIcon();
 
-        if(icon.equals("M") || icon.equals("SG")){
+        if(icon.equals("M ") || icon.equals("[S]")){
             return false;
         }
 
         if(row != agent.getX()){
-            return isVerticalMove(row, col, MAX_COL);
+            return isVerticalMove(row, col,  MAX_ROW, MAX_COL, agent, grid);
         }
         
         return true;
@@ -404,9 +410,7 @@ public class BoardTest4 {
                     int nextRow = agent.getX();
                     int nextCol = agent.getY();
                     
-                    
-                    
-                    if (isVerticalMove(agent.getX(), agent.getY(), MAX_COL) && agent.getX() != row) { //move to correct row first if we can move vertically
+                    if (isVerticalMove(agent.getX(), agent.getY(), MAX_ROW, MAX_COL, agent, grid) && agent.getX() != row) { //move to correct row first if we can move vertically
                         if (row > agent.getX()){
                             nextRow = agent.getX() + 1;
                         }
@@ -432,13 +436,13 @@ public class BoardTest4 {
                     }
                     
                     //if cant move vertically, move toward stairs/elevator
-                    else if (!isVerticalMove(agent.getX(), agent.getY(), MAX_COL) && agent.getX() != row) {
+                    else if (!isVerticalMove(agent.getX(), agent.getY(), MAX_ROW, MAX_COL, agent, grid) && agent.getX() != row) {
                         
                         if (agent.scan(MAX_ROW, MAX_COL, grid, 0, 1).getIcon().equals("E")){
                             nextCol = agent.getY() + 1; //move toward elevator
                         }
                         else if(agent.scan(MAX_ROW, MAX_COL, grid, 0, -1).getIcon().equals("//")){
-                            nextCol = agent.getY() + 1; //move toward stairs
+                            nextCol = agent.getY() - 1; //move toward stairs
                         }
                         else {
                             nextCol = agent.getY() + 1; //move toward elevator
@@ -578,7 +582,7 @@ public class BoardTest4 {
                     
                     
                     
-                    if (isVerticalMove(agent.getX(), agent.getY(), MAX_COL) && agent.getX() != row) { //move to correct row first if we can move vertically
+                    if (isVerticalMove(agent.getX(), agent.getY(), MAX_ROW, MAX_COL, agent, grid) && agent.getX() != row) { //move to correct row first if we can move vertically
                         if (row > agent.getX()){
                             nextRow = agent.getX() + 1;
                         }
@@ -604,13 +608,13 @@ public class BoardTest4 {
                     }
                     
                     //if cant move vertically, move toward stairs/elevator
-                    else if (!isVerticalMove(agent.getX(), agent.getY(), MAX_COL) && agent.getX() != row) {
+                    else if (!isVerticalMove(agent.getX(), agent.getY(), MAX_ROW, MAX_COL, agent, grid) && agent.getX() != row) {
                         
                         if (agent.scan(MAX_ROW, MAX_COL, grid, 0, 1).getIcon().equals("E")){
                             nextCol = agent.getY() + 1; //move toward elevator
                         }
                         else if(agent.scan(MAX_ROW, MAX_COL, grid, 0, -1).getIcon().equals("//")){
-                            nextCol = agent.getY() + 1; //move toward stairs
+                            nextCol = agent.getY() - 1; //move toward stairs
                         }
                         else {
                             nextCol = agent.getY() + 1; //move toward elevator
