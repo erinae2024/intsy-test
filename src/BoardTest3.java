@@ -42,22 +42,9 @@ class Agent extends Tile{
     }
 
     public void move(int row, int col, int MAX_COL){
-        if(col == MAX_COL - 1){
-            this.coords.set(0, row);
-            this.coords.set(1, col);
-            //this.incMove();
-            //this.incMove();
-        } else if(col == 0){
-            this.coords.set(0, row);
-            this.coords.set(1, col);
-            //this.incFatigue();
-            //this.incMove();
-        }
-    
         this.coords.set(0, row);
         this.coords.set(1, col);
         this.incMove();
-        
     }
     
     public void updateTasks(ArrayList<Tile> tasks){
@@ -218,6 +205,15 @@ public class BoardTest3 {
         }
     
         if (visited[row][col]){
+            return false;
+        }
+         
+       for(int i = 0; i < MAX_COL; i++){
+            if(grid[row][i].equals("SG")) return false;
+        }
+
+        String icon = grid[row][col].getIcon();
+        if(icon.equals("M")){
             return false;
         }
 
